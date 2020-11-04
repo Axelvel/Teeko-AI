@@ -5,7 +5,7 @@ import game
 
 class State():
 
-    def __init__(self, board, a, b, p):
+    def __init__(self, board, a, b):
 
         self.board = np.array(board) #Board configuration
         self.a = a #Player A's remaining pawns
@@ -43,14 +43,14 @@ initial_state = State([
 #Show game board
 game.show(initial_state)
 
-#Placing White pawn (v = 2) at (1,0)
-game.place(initial_state, 1, 0, 2)
+#Placing White pawn (v = 2) at (0,0)
+game.place(initial_state, 0, 0, 2)
 
 #Show game board
 game.show(initial_state)
 
-#Moving pawn at (1,0) to (0,0)
-game.move(initial_state, 1, 0, 0, 0)
+#Moving pawn at (0,0) to (1,1)
+game.move(initial_state, 0, 0, 1, 1)
 
 #Show game board
 game.show(initial_state)

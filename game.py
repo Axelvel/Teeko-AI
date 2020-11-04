@@ -14,14 +14,29 @@ def move(state, a, b, x, y):
             if (state.board[a][b] == 0): #Initial position is unoccupied
                 print("There is no pawn to move at this position. \n")
             else: #initial position is unoccupied
-                state.board[x][y] = state.board[a][b] #Moving pawn value
-                state.board[a][b] = 0 #Resetting initial position value to 0 (empty)
+                adjacentSlots = getAdjacent(state, a, b)
+                if [x,y] in adjacentSlots:
+                    state.board[x][y] = state.board[a][b] #Moving pawn value
+                    state.board[a][b] = 0 #Resetting initial position value to 0 (empty)
+                else:
+                    print("Destination is not adjacent to the selected pawn. \n")
     else:
         print("Initial position and destination must be different. \n")
 
-# TODO: create getAdjacent function returning a list of the positions of the adjacent slots
 def getAdjacent(state, a, b):
     adjacentSlots = []
+    directions = [
+        [-1, -1], [-1, 0], [-1, +1],
+        [0, -1],           [0, +1],
+        [+1, -1], [+1, 0], [+1, +1],
+    ]
+
+    for i in directions:
+        x = a + i[0]
+        y = b + i[1]
+
+        if( 0 <= x <= 4 and 0 <= y <= 4):
+            adjacentSlots.append([x,y])
 
     return adjacentSlots
 
