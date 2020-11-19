@@ -66,8 +66,6 @@ initial_state = State([
             [0, 0, 0, 0, 0]
         ], 4, 4)
 #self.board = np.zeros((5,5), dtype=np.int16) #Initial board configuration
-
-
 ### Examples ###
 
 #Show game board
@@ -94,5 +92,12 @@ for i in n: #Printing all the possible next states
     print(i.board)
     print("\n")
 '''
-print("Calcul des possible winning")
-w = game.winningCombinations(initial_state,1)
+test_state = State([
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 2],
+            [0, 0, 0, 2, 0],
+            [0, 0, 2, 0, 0],
+            [0, 2, 0, 0, 0]
+        ], 4, 4)
+
+print(game.isWinning(test_state,2))

@@ -69,37 +69,107 @@ def getAdjacent(state, a, b):
     return adjacentSlots
 
 '''
-@desc TEST function that searchs for all possible winning combinations. it takes into account the pawns already on the board
+A AMELIORER
+@desc function that verify if the board owns a winning combination
 @param State $state - the state of the current board Game
-@param int $player - the player for which we are searching winning combinations
-@return array $winnigCombinations - list of game state in which the player is winning
+@param int $player - number of the player for which we are checking the boardd
+@return bool - whether the board has a winning combination
 '''
-def winningCombinations(state,player):
-    #Serach for all horizontal positions, then vertical, then diagonal, then squares ? and store them into an array
-    winning = [];
+def isWinning(state,player):
+    ##We browse the board from left to right and top to bottom
+
+    #Looking for the first iteration of the pawn with the value of player, and saving its position in posX and posY
+    x = 0
+    y = 0
+    posX = 0
+    poxY = 0
+    while state.board[x][y] != player:
+        for x in range(5):
+            for y in range(5):
+                if state.board[x][y] == player:
+                    posX = x
+                    posY = y
+                    break
+            if state.board[x][y] == player:
+                break
+        if state.board[x][y] == player:
+            print(state.board[x][y])
+            break
 
 
-    blankBoard =[[0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0]]
-    #Search for all possible combinations, disregarding the actual state of the gameboard
-    #vertical
+    ##HORIZONTAL PAWNS TEST
+    compte = 0
+    for i in range(posY,5):
+        if state.board[x][y] == player :
+            y = y + 1
+            compte = compte + 1
+        else:
+            break
+    if(compte == 4):
+        return True
 
-    start_line = 0;
-    for i in range(4):
-        for j in range(3):
-            newBoard = [blankBoard]
-            newBoard[i+start_line][j]=1
-            show(newBoard)
-            winning.append(newBoard)
+    ##VERTICAL PAWNS TEST
+    x = posX
+    y = posY
+    compte = 0
+    for i in range(posX,5):
+        if state.board[x][y] == player :
+            compte = compte + 1
+            x = x + 1
+        else:
+            break
+    if(compte == 4):
+        return True
 
-    return winning
+    ##RIGHT DIAGONAL TEST
+    x = posX
+    y = posY
+    compte = 0
+    for i in range(posY,5):
+        if state.board[x][y] == player :
+            compte = compte + 1
+            x = x + 1
+            y = y + 1
+        else:
+            break
+        if x > 4:
+            break
+    if(compte == 4):
+        return True
 
+    ##LEFT DIAGONAL TEST
+    x = posX
+    y = posY
+    compte = 0
+    for i in range(posX,5):
+        if state.board[x][y] == player :
+            compte = compte + 1
+            x = x + 1
+            y = y - 1
+        else:
+            break
+        if y > 4:
+            break
+    if(compte == 4):
+        return True
 
-    #compare thoses combinations to the state of the gameboard and only keep the relevants one
-    #blablabla
+    ##CUBE TEST
+    x = posX
+    y = posY
+    compte = 0
+    directions = [[0,+1],[+1,0],[0,-1],[0,0],]
+
+    for i in directions:
+        if state.board[x][y] == player :
+            compte = compte + 1
+            x = x + i[0]
+            y = y + i[1]
+        else:
+            break
+    if(compte == 4):
+        return True
+
+    return False
 
 """
 @desc print the gameboard
