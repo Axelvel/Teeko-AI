@@ -47,6 +47,7 @@ def nextState(state): #Returns a list of possible next states
 #Black = 1
 #White = 2
 
+"""
 initial_state = State([
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
@@ -82,3 +83,4 @@ for i in n: #Printing all the possible next states
     print("\n")
     print(i.board)
     print("\n")
+"""
