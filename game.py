@@ -23,7 +23,7 @@ def place(state, a, b, cflag):
 @param State $state - the state of the current board Game
 @param int $a,b - the coordinates of the previous position of the pawns
 @param int $a,b - the coordinates of the wanted position of the pawns
-@param ? $cflag - ?
+@param bool $cflag - allow console messages
 """
 
 def move(state, a, b, x, y, cflag):
@@ -90,9 +90,6 @@ A AMELIORER
 @return bool - whether the board has a winning combination
 '''
 def isWinning(state,player):
-    ##We browse the board from left to right and top to bottom
-
-    #Looking for the first iteration of the pawn with the value of player, and saving its position in posX and posY
     x = 0
     y = 0
     posX = 0
@@ -108,7 +105,6 @@ def isWinning(state,player):
             if state.board[x][y] ==player:
                 break
         if state.board[x][y] == player:
-            #print(state.board[x][y])
             break
 
 
@@ -192,7 +188,7 @@ def isWinning(state,player):
 @param State $state - the state of the current board Game
 """
 
-def show(state): #Show the game board at a given state
+def show(state): 
     print("\n")
     print(state.board)
     print("\n")

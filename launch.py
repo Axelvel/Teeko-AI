@@ -1,17 +1,16 @@
 import ai
 import game
 import minMaxAlgorithm
-maxSize = float("inf")
 
 test_state = ai.State([
-            [0, -1, -1, 0, 0],
+            [0, 0, -1, 0, -1],
             [0, -1, 0, 0, 0],
-            [0, 0, 1, 1, -1],
-            [0, 1, 0, 0, 1],
+            [0, 0, 1, 1, 0],
+            [1, 1, 0, 0, -1],
             [0, 0, 0, 0, 0]
         ], 0, 0, 1)
 
-depth = 3
+depth = 2
 
 
 while(not(game.isWinning(test_state,-1)) and not(game.isWinning(test_state,1))):

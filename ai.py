@@ -4,10 +4,6 @@ import numpy as np
 import game
 
 
-#Empty = 0
-#Black = 1
-#White = 2
-
 """
 @desc class of the gameboard
 """
@@ -29,35 +25,29 @@ class State():
 @return array $successors - the list of all the next possible states
 """
 
-def nextState(state): #Returns a list of possible next states
+def nextState(state):
     successors = []
 
-    ###QUAND CEST LIA CEST EGAL A -1
-    if (state.t == 1): #Player 1
-        x = 1 ##donc 1 ?
+    if (state.t == 1):
+        x = 1
         y = 0
-    else:       #Player 2
+    else:
         x = 0
-        y = 1 ##donc 1 ?
+        y = 1
 
     if (state.a != 0 or state.b != 0): #Game in placing phase
-        #print("\n*** Placing phase ***\n")
 
-        #In the placing phase, we can place a pawn wherever we want except where there are pawns already
-        for i in range(5): #Iterating through every cell of the board
+        for i in range(5):
             for j in range(5):
-                new_state = State(state.board, state.a - x, state.b - y,state.t*-1) #Substracting 1 pawn to player B (AI)
+                new_state = State(state.board, state.a - x, state.b - y,state.t*-1)
                 game.place(new_state, i, j, False)
                 if not (np.array_equal(new_state.board, state.board)):
                     successors.append(new_state)
 
-
-    else: #Game in moving phase
-        #print("\n*** Moving phase ***\n")
-
-        for i in range(5): #Iterating through every cell of the board
+    else:  #Game in moving phase
+        for i in range(5):
             for j in range(5):
-                if (state.board[i][j] == state.t): #If the case contain a player's pawn
+                if (state.board[i][j] == state.t):
                     adjacentSlots = game.getAdjacent(state, i, j)
 
                     for p in adjacentSlots:
