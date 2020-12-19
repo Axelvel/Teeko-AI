@@ -5,13 +5,14 @@ import ai
 import numpy as np
 
 maxSize = float("inf") ##VALUE OF INFINITY
+
 """
 @desc function that calculate the heuristic value for a given state (+inf,-inf or an alternative value)
 @param State $state - possible next state
 @param int $depth - actual depth of the tree
 @return int $value - heuristic value for the state
 """
-def eval(state,depth):
+def eval(state):
     value = 0
     if game.isWinning(state,1):
         value = 100
@@ -20,15 +21,13 @@ def eval(state,depth):
     else :
         for x in range(5):
             for y in range(5):
-                if state.board[x][y] == state.t:
+                if state.board[x][y] == -state.t:
                     pawnsWeight = stateWeightForPawn(state,x,y)
-                    ###REPARCOURS DE LA matri
                     for a in range(5):
                         for b in range(5):
                             if state.board[a][b] == state.t:
                                 value = value + state.t * pawnsWeight[a][b]
-    return value + depth
-        #SI IL GAGNE PAS, TROUVER UN MOYEN DE CHOISIR UN AUTRE State
+    return value
 
 """
 @desc function that creates a 5x5 with the weights of each case, depending on the position of the selected pawn
@@ -45,7 +44,7 @@ def stateWeightForPawn(state,x,y):
                 [0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0]
                 ]
-    ###GET ADJACENTS de x et y, prendre leurs coordonnées et mettre 2 dans state weight
+
     nearPawns = game.getAdjacent(state,x,y)
     for nearPawn in nearPawns:
         stateWeight[nearPawn[0]][nearPawn[1]] = 2
@@ -58,51 +57,52 @@ def stateWeightForPawn(state,x,y):
     return stateWeight
 
 """
-@desc function searches for the best move to take according to the MinMax algorithm
+@desc function that searches for the best move to take according to the MinMax algorithm
 @param State $state - the state of the current board Game
 @param int $depth - actual depth of the tree
 @return State $besteMove - best next state
 """
 def IAbestMove(state,depth):
-    bestScore = -maxSize
+    bestScore = maxSize
     bestMove = None
+    alpha = -maxSize
+    beta = maxSize
 
     nextStates = ai.nextState(state)
 
-    #print("Impression des scores de chaques etats suivants :")
-    #i = 0
     for newState in nextStates:
-        #game.show(newState)
-        #print(game.isWinning(newState,-newState.t))
-        score = MinMax(newState,depth,False)
-        #print("Etat "+str(i)+" : " +str(score))
-        #i = i+1
-        if(score > bestScore):
+        score = MinMax(newState,depth,alpha,beta,False)
+
+        if(score < bestScore):
             bestMove = newState
             bestScore = score
 
+    print("the best value is : "+str(bestScore))
     return bestMove
 
 """
-@desc function of the minimize and maximize algorithms
+@desc minimax algorithm
 @param State $state - the state of the current board Game
 @param int $depth - actual depth of the tree
 @param bool $maximizing - True to maximize, False to minimize
 @return int $bestScore - heuristic value of the the best next state
 """
-def MinMax(state,depth,maximizing):
+def MinMax(state,depth,alpha,beta,maximizing):
     if game.isWinning(state,state.t) == True or game.isWinning(state,-state.t) == True or depth == 0:
-        return eval(state,depth)
+        return eval(state)
 
     if maximizing:
         bestScore = -maxSize
         nextStates = ai.nextState(state)
 
         for newState in nextStates:
-            score = MinMax(newState,depth-1,False)
-            #bestScore = max(score,bestScore)
-            if score > bestScore:
-                bestScore = score
+            score = MinMax(newState,depth-1,alpha,beta,False)
+
+            bestScore = max(score,bestScore)
+
+            alpha = max(alpha,score)
+            if beta <= alpha:
+                break
 
         return bestScore
     else:
@@ -110,9 +110,12 @@ def MinMax(state,depth,maximizing):
         nextStates = ai.nextState(state)
 
         for newState in nextStates:
-            score = MinMax(newState,depth-1,True)
-            #bestScore = min(score,bestScore)
-            if score < bestScore:
-                bestScore = score
+            score = MinMax(newState,depth-1,alpha,beta,True)
+            
+            bestScore = min(score,bestScore)
+
+            beta = min(beta,score)
+            if beta <= alpha:
+                break
 
         return bestScore
