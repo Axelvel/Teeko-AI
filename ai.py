@@ -9,7 +9,9 @@ import game
 """
 class State():
 
-    def __init__(self, board, a, b,t):
+
+    def __init__(self, board, a, b, t):
+
 
         self.board = np.array(board) #Board configuration
         self.a = a #Player A's remaining pawns
@@ -18,6 +20,7 @@ class State():
 
     def switchPlayer(self):
         self.t *= -1
+
 
 """
 @desc function that searchs for the possible next states
@@ -28,10 +31,11 @@ class State():
 def nextState(state):
     successors = []
 
-    if (state.t == 1):
+
+    if (state.t == 1): #Player 1
         x = 1
         y = 0
-    else:
+    else: #Player 2
         x = 0
         y = 1
 
@@ -39,7 +43,9 @@ def nextState(state):
 
         for i in range(5):
             for j in range(5):
+
                 new_state = State(state.board, state.a - x, state.b - y,state.t*-1)
+
                 game.place(new_state, i, j, False)
                 if not (np.array_equal(new_state.board, state.board)):
                     successors.append(new_state)
@@ -51,9 +57,12 @@ def nextState(state):
                     adjacentSlots = game.getAdjacent(state, i, j)
 
                     for p in adjacentSlots:
-                        new_state = State(state.board, state.a, state.b,state.t)
+
+                        new_state = State(state.board, state.a, state.b,state.t) #Check
+
                         game.move(new_state, i, j, p[0],p[1], False)
                         if not (np.array_equal(new_state.board, state.board)):
                             successors.append(new_state)
 
     return successors
+

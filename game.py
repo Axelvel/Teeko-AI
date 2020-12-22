@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+
 """
 @desc function that places a pawn on the board
 @param State $state - the state of the current board Game
@@ -9,17 +10,25 @@
 @param ? $cflag - ?
 """
 
+
+
+import os
+import time
+
+
 def place(state, a, b, cflag):
     if (state.board[a][b] != 0): #Position is occupied by another pawn
         if (cflag):
             print("This position is occupied. \n")
         return False
     else: #Position is not occupied
+
         state.board[a][b] = state.t #We assign the value of the pawn to this position
         state.t *= -1
         return True
 """
-@desc function that moves a pawn on the board
+@desc function that 
+s a pawn on the board
 @param State $state - the state of the current board Game
 @param int $a,b - the coordinates of the previous position of the pawns
 @param int $a,b - the coordinates of the wanted position of the pawns
@@ -27,7 +36,6 @@ def place(state, a, b, cflag):
 """
 
 def move(state, a, b, x, y, cflag):
-
     if (a != x or b != y): #Position and destionation must be different
         if (state.board[x][y] != 0): #Destination position is occupied by another pawn
             if (cflag):
@@ -40,6 +48,7 @@ def move(state, a, b, x, y, cflag):
                 return False
             else: #initial position is unoccupied
                 if (state.board[a][b] == state.t):
+
                     adjacentSlots = getAdjacent(state, a, b)
                     if [x,y] in adjacentSlots:
                         state.board[x][y] = state.board[a][b] #Moving pawn value
@@ -57,6 +66,7 @@ def move(state, a, b, x, y, cflag):
         if (cflag):
             print("Initial position and destination must be different. \n")
         return False
+
 
 """
 @desc function that searchs for the adjacents slots of a pawn
@@ -192,3 +202,83 @@ def show(state):
     print("\n")
     print(state.board)
     print("\n")
+
+def play(state):
+    print("Lauching game...\n")
+
+    i = 0
+    t = 0
+
+    while (i != 10): #Nombre total de tours
+        os.system('clear')
+        print("\n*** Tour " + str(i) + " ***", flush=True)
+
+        show(state)
+
+
+        if (t == 0): #Player 1's turn
+            print("\nPlayer 1's turn\n", flush=True)
+
+            if (state.a != 0): #Placement phase
+                print("Placement phase: ")
+
+                while True:
+                    try:
+                        x_pos = int(input("Choose x position: "))
+                        y_pos = int(input ("Choose y position: "))
+
+                    except:
+                        print("Sorry, I didn't understand that.")
+                        continue
+
+                    if not(0 <= x_pos <= 4 and 0 <= y_pos <= 4):
+                        print("Please select values from 0 to 4.")
+                        continue
+
+                    if (place(state, x_pos, y_pos, True) == False):
+                        continue
+                    else:
+                        break
+
+                state.a -= 1
+
+                show(state)
+
+                print("Next turn...")
+                time.sleep(3)
+
+            else:
+                print("Moving phase: ")
+
+                while True:
+                    try:
+                        x_pos = int(input("Choose x position: "))
+                        y_pos = int(input ("Choose y position: "))
+
+                        a_pos = int(input("Choose a position: "))
+                        b_pos = int(input ("Choose b position: "))
+
+                    except:
+                        print("Sorry, I didn't understand that.")
+                        continue
+
+                    if not(0 <= x_pos <= 4 and 0 <= y_pos <= 4 and 0 <= a_pos <= 4 and 0 <= b_pos <= 4 ):
+                        print("Please select values from 0 to 4.")
+                        continue
+
+                    if (move(state, x_pos, y_pos, a_pos, b_pos, True) == False):
+                        continue
+                    else:
+                        break
+
+
+                show(state)
+                print("Next turn...")
+                time.sleep(3)
+
+        else: # Player 2's turn
+            print("\nPlayer 2's turn\n", flush=True)
+
+        t = not(t)
+
+        i += 1
