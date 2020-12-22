@@ -3,16 +3,20 @@
 import os
 import time
 
-def place(state, a, b, v, cflag):
+
+def place(state, a, b, cflag):
+    v = 1 if state.t == 1 else 2
     if (state.board[a][b] != 0): #Position is occupied by another pawn
         if (cflag):
             print("This position is occupied. \n")
         return False
     else: #Position is not occupied
         state.board[a][b] = v #We assign the value of the pawn to this position
+        state.t *= -1
         return True
 
-def move(state, a, b, x, y, cflag):
+def move(state, a, b, x, y, cflag): #TODO: check if player can move  can move the pawn (only if it is one of his)
+    v = 1 if state.t == 1 else 2
     if (a != x or b != y): #Position and destionation must be different
         if (state.board[x][y] != 0): #Destination position is occupied by another pawn
             if (cflag):
@@ -24,14 +28,19 @@ def move(state, a, b, x, y, cflag):
                     print("There is no pawn to move at this position. \n")
                 return False
             else: #initial position is unoccupied
-                adjacentSlots = getAdjacent(state, a, b)
-                if [x,y] in adjacentSlots:
-                    state.board[x][y] = state.board[a][b] #Moving pawn value
-                    state.board[a][b] = 0 #Resetting initial position value to 0 (empty)
-                    return True
+                if (state.board[a][b] == v):
+                    adjacentSlots = getAdjacent(state, a, b)
+                    if [x,y] in adjacentSlots:
+                        state.board[x][y] = state.board[a][b] #Moving pawn value
+                        state.board[a][b] = 0 #Resetting initial position value to 0 (empty)
+                        state.t *= -1
+                        return True
+                    else:
+                        if (cflag):
+                            print("Destination is not adjacent to the selected pawn. \n")
+                        return False
                 else:
-                    if (cflag):
-                        print("Destination is not adjacent to the selected pawn. \n")
+                    print("The pawn selected is not one of yours")
                     return False
     else:
         if (cflag):
@@ -66,7 +75,7 @@ def play(state):
     i = 0
     t = 0
 
-    while (i != 10): //Nombre total de tours
+    while (i != 10): #Nombre total de tours
         os.system('clear')
         print("\n*** Tour " + str(i) + " ***", flush=True)
 
@@ -92,7 +101,7 @@ def play(state):
                         print("Please select values from 0 to 4.")
                         continue
 
-                    if (place(state, x_pos, y_pos, 1, True) == False):
+                    if (place(state, x_pos, y_pos, True) == False):
                         continue
                     else:
                         break
