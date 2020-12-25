@@ -3,6 +3,7 @@
 from tkinter import *
 from ai import *
 import game
+import minMaxAlgorithm
 
 #Change "initial_state" instances to "state" instances
 
@@ -18,6 +19,9 @@ COLOR = 'grey'
 COLOR1 = 'sky blue'
 COLOR2 = 'violet red'
 
+depth = 3
+mode = 1
+
 
 """
 initial_state = State([
@@ -30,12 +34,12 @@ initial_state = State([
 """
 
 initial_state = State([
+            [0, 0, 0, 0, 1],
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0]
-        ], 4, 4, 1)
+            [-1, 0, 0, 0, 0]
+        ], 3, 3, 1)
 
 
 
@@ -193,6 +197,8 @@ class Interface():
         self.gameWindow.title("Playing game...")
         self.gameWindow.minsize(800,800)
 
+        self.gameFinished = False
+
         board = Frame(self.gameWindow)
         board.config(background='#41B77F')
 
@@ -203,10 +209,10 @@ class Interface():
         playerValue = 1 if state.t == 1 else 2
 
         self.txt = Label(self.gameWindow, text="Player " + str(playerValue) + "'s turn:", font= ("Courrier", 40), bg='#41B77F', fg="White")
-        self.txt.pack(pady = 20)
+        self.txt.pack(pady = (100,20))
 
-        self.coord = Label(self.gameWindow, text="Empty", font= ("Courrier", 40), bg='#41B77F', fg="White")
-        self.coord.pack(pady = 20)
+        #self.coord = Label(self.gameWindow, text="Empty", font= ("Courrier", 40), bg='#41B77F', fg="White")
+        #self.coord.pack(pady = 20)
 
         #lbl = Label(gameWindow, text="Player X's turn", font=(Courrier, 25))
         #lbl.pack()
@@ -235,7 +241,9 @@ class Interface():
         x = int(event.y // cellHeight)
         print("x = " + str(x))
         print("y = " + str(y))
-        self.coord.config(text = "("+str(x)+","+str(y)+")")
+        #self.coord.config(text = "("+str(x)+","+str(y)+")")
+
+        global initial_state
 
 
         try:
@@ -244,40 +252,78 @@ class Interface():
         except:
             print("none")
 
-        if (initial_state.board[x][y] != 0 and initial_state.a == 0 and initial_state.b == 0): #TODO: Do ir with state.b too
+        if (initial_state.board[x][y] != 0 and initial_state.a == 0 and initial_state.b == 0): #TODO: Do it with state.b too
             self.selectedPawnX = x
             self.selectedPawnY = y
 
 
-        #if (initial_state.t == 0):
-        if(1): #if not(isWinning(state,1) and isWinning(state,-1))
-            if (initial_state.a != 0 or initial_state.b !=0): #Placing phase
+        if(self.gameFinished == False):
+
+            if (initial_state.a != 0 or initial_state.b !=0 ): #Placing phase
+
                     if (game.place(initial_state, x, y, True) == True):
 
-                        if (initial_state.t == 1):
-                            initial_state.a -= 1
-                        else:
+
+                        if (mode == 0):
+                            print("PvP")
+
+                            if (initial_state.t == 1):
+                                initial_state.a -= 1
+                            else:
+                                initial_state.b -= 1
+
+
+
+
+                        elif (mode == 1):
+                            print("PvAI")
+
+                            #initial_state.a -= 1
+
+                            self.txt.config(text="AI")
+                            initial_state.t *= -1
+
+                            initial_state = minMaxAlgorithm.IAbestMove(initial_state, depth)
                             initial_state.b -= 1
+
+
+
             else: #Moving Phase
                 try:
                     if (self.selectedPawnX != None and self.selectedPawnY != None):
                         if(game.move(initial_state, self.selectedPawnX, self.selectedPawnY, x, y, True) == False):
-                            print("move fail")
+                            print("Move failed")
                         else:
-                            print("move successful!")
+                            print("Move successful!")
                             self.selectedPawnX = None
                             self.selectedPawnY = None
 
+                            if (mode == 1):
+                                self.txt.config(text="AI")
+                                initial_state = minMaxAlgorithm.IAbestMove(initial_state, depth)
+
+
                 except:
                     print("Fail")
-    #    else:
-        #    initial_state.t = 0
+
+
+
         self.drawBoard(self.canvas, initial_state) #Refreshes the board
         playerValue = 1 if initial_state.t == 1 else 2
         self.txt.config(text="Player " + str(playerValue) + "'s turn:")
 
-    #    if (not(isWinning(state,1) and isWinning(state,-1))):
-    #        print("Player " + initial_state.t*-1 + " won this game!")
+        if (initial_state.a == 0 or initial_state.b == 0):
+            if (game.isWinning(initial_state,1)):
+                print("Player 1 won this game!")
+                self.txt.config(text="Congrats, you've won!")
+                self.gameFinished = True
+            elif (game.isWinning(initial_state, -1)):
+                print("Player 2 won this game!")
+                self.txt.config(text="Booo, you lost :(")
+                self.gameFinished = True
+        print(initial_state.a)
+        print(initial_state.b)
+
 
 
     def drawCell(self, canvas, x, y, s):
@@ -288,7 +334,7 @@ class Interface():
 
         if (s == 1):
             self.canvas.create_rectangle(x1, y1, x2, y2, fill= COLOR1, activefill= COLOR)
-        elif (s == 2):
+        elif (s == -1):
             self.canvas.create_rectangle(x1, y1, x2, y2, fill= COLOR2, activefill= COLOR)
         else:
             self.canvas.create_rectangle(x1, y1, x2, y2, fill= 'white', activefill= COLOR)

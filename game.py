@@ -27,7 +27,7 @@ def place(state, a, b, cflag):
         state.t *= -1
         return True
 """
-@desc function that 
+@desc function that
 s a pawn on the board
 @param State $state - the state of the current board Game
 @param int $a,b - the coordinates of the previous position of the pawns
@@ -112,7 +112,7 @@ def isWinning(state,player):
                     posX = x
                     posY = y
                     break
-            if state.board[x][y] ==player:
+            if state.board[x][y] == player:
                 break
         if state.board[x][y] == player:
             break
@@ -198,7 +198,7 @@ def isWinning(state,player):
 @param State $state - the state of the current board Game
 """
 
-def show(state): 
+def show(state):
     print("\n")
     print(state.board)
     print("\n")
