@@ -19,14 +19,28 @@ def eval(state):
     elif game.isWinning(state,-1):
         value = -100
     else :
+        '''##METHODE 1
+            for x in range(5):
+                for y in range(5):
+                    if state.board[x][y] == state.t:
+                        pawnsWeight = stateWeightForPawn(state,x,y)
+                        for a in range(5):
+                            for b in range(5):
+                                if state.board[a][b] == state.t:
+                                    value = value + state.t * pawnsWeight[a][b]
+        '''
+        #METHODE 2
+        weights = [
+                    [0, 0, 0, 0, 0],
+                    [0, 1, 1, 1, 0],
+                    [0, 1, 2, 1, 0],
+                    [0, 1, 1, 1, 0],
+                    [0, 0, 0, 0, 0]
+                    ]
         for x in range(5):
             for y in range(5):
-                if state.board[x][y] == -state.t:
-                    pawnsWeight = stateWeightForPawn(state,x,y)
-                    for a in range(5):
-                        for b in range(5):
-                            if state.board[a][b] == state.t:
-                                value = value + state.t * pawnsWeight[a][b]
+                if state.board[x][y] == state.t or state.board[x][y] == -state.t:
+                    value = value + state.board[x][y] * weights[x][y]
     return value
 
 """
@@ -111,7 +125,7 @@ def MinMax(state,depth,alpha,beta,maximizing):
 
         for newState in nextStates:
             score = MinMax(newState,depth-1,alpha,beta,True)
-            
+
             bestScore = min(score,bestScore)
 
             beta = min(beta,score)
