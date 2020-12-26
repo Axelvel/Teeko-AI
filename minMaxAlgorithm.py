@@ -14,10 +14,8 @@ maxSize = float("inf") ##VALUE OF INFINITY
 """
 def eval(state):
     value = 0
-    if game.isWinning(state,1):
-        value = 100
-    elif game.isWinning(state,-1):
-        value = -100
+    if game.isWinning(state,-state.t):
+        value = maxSize * -state.t
     else :
         '''##METHODE 1
             for x in range(5):
@@ -91,7 +89,6 @@ def IAbestMove(state,depth):
             bestMove = newState
             bestScore = score
 
-    print("the best value is : "+str(bestScore))
     return bestMove
 
 """
