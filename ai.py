@@ -21,6 +21,12 @@ class State():
     def switchPlayer(self):
         self.t *= -1
 
+    def initialize(self):
+        self.board = np.zeros((5,5), dtype=np.int16) #Initial board configuration
+        self.a = 4
+        self.b = 4
+        self.t = 1
+
 
 """
 @desc function that searchs for the possible next states
@@ -65,4 +71,3 @@ def nextState(state):
                             successors.append(new_state)
 
     return successors
-
