@@ -4,6 +4,7 @@ from tkinter import *
 from ai import *
 import game
 import minMaxAlgorithm
+from sys import platform
 
 #TODO: Change "initial_state" instances to "state" instances
 
@@ -41,6 +42,9 @@ class Interface():
         self.window = Tk()
         self.window.title("Teeko Game")
 
+        #print("platform = " + str(sys.platform()))
+        print(sys.platform)
+
         self.frame = Frame(self.window)
         self.frame.config(background=BGCOLOR)
 
@@ -63,9 +67,14 @@ class Interface():
         self.window.minsize(600,400)
         self.window.config(background=BGCOLOR)
         self.center_window(self.window, 600, 400)
-        self.window.iconbitmap('Assets/gameIcon.ico')
-        self.icon = Image("photo", file="Assets/icon.png")
-        self.window.call('wm','iconphoto', self.window._w, self.icon)
+
+        #Icons
+        if (sys.platform == 'win32' or sys.platform == 'darwin'):
+            self.window.iconbitmap('Assets/gameIcon.ico')
+            self.icon = Image("photo", file="Assets/icon.png")
+            self.window.call('wm','iconphoto', self.window._w, self.icon)
+        elif (sys.platform == "linux"):
+            self.window.iconbitmap('Assets/gameIcon.xpm')
 
         self.window.mainloop()
 
