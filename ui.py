@@ -3,10 +3,10 @@
 from tkinter import *
 from ai import *
 import game
-import minMaxAlgorithm
+from sys import platform
 
-#TODO: Change "initial_state" instances to "state" instances
 
+#Board dimensions
 boardWidth = 400
 boardHeight = 400
 ncols = 5
@@ -14,30 +14,36 @@ nrows = 5
 cellWidth = boardWidth / ncols
 cellHeight = boardHeight / nrows
 
-
+#Colors used
 COLOR = 'grey'
 COLOR1 = 'sky blue'
 COLOR2 = 'violet red'
-
 BGCOLOR = '#41B77F'
 
 depth = 2
 
-initial_state = State([
+
+state = game.boardGame([
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0]
-        ], 4, 4, 1)
+        ], 1, 8)
 
+
+ai = ai.TeekoAI(state,-1)
 
 
 class Interface():
     def __init__(self):
 
         self.mode = 0
+        self.difficulty = 1
 
+
+
+        #Main UI
         self.window = Tk()
         self.window.title("Teeko Game")
 
@@ -63,9 +69,14 @@ class Interface():
         self.window.minsize(600,400)
         self.window.config(background=BGCOLOR)
         self.center_window(self.window, 600, 400)
-        self.window.iconbitmap('Assets/gameIcon.ico')
-        self.icon = Image("photo", file="Assets/icon.png")
-        self.window.call('wm','iconphoto', self.window._w, self.icon)
+
+        #Icons
+        if (sys.platform == 'win32' or sys.platform == 'darwin'):
+            self.window.iconbitmap('Assets/gameIcon.ico')
+            self.icon = Image("photo", file="Assets/icon.png")
+            self.window.call('wm','iconphoto', self.window._w, self.icon)
+        elif (sys.platform == "linux"):
+            self.window.iconbitmap('Assets/gameIcon.xpm')
 
         self.window.mainloop()
 
@@ -89,10 +100,9 @@ class Interface():
 
 
         #Game config window
-
         difficultyLabel = Label(frame, text="Choose your difficulty level:", font =("Courrier", 15), bg=BGCOLOR, fg="White")
         difficultyLabel.pack()
-        self.selector = Scale(frame, from_=0, to=200, orient=HORIZONTAL, bg=BGCOLOR, fg="White")
+        self.selector = Scale(frame, from_=1, to=3, orient=HORIZONTAL, bg=BGCOLOR, fg="White")
         self.selector.pack(expand = YES, pady= 10, fill=X)
 
         pvpButton = Button(frame, text="PvP", bg = BGCOLOR, command = lambda : self.changeMode(0))
@@ -112,7 +122,7 @@ class Interface():
         popupButton = Button(self.playConfig, text="Back", font=("Courrier, 20"), command = lambda: [self.playConfig.withdraw(),self.window.deiconify()], bg=BGCOLOR)
         popupButton.pack(side="bottom", pady=20)
 
-        launchGameButton = Button(self.playConfig, text='Launch Game', font=("Courrier, 20"), command = lambda: [self.playConfig.withdraw(),self.openGameWindow()], bg=BGCOLOR )
+        launchGameButton = Button(self.playConfig, text='Launch Game', font=("Courrier, 20"), command = lambda: [self.playConfig.withdraw(),self.openGameWindow(), self.changeDifficulty(self.selector.get())], bg=BGCOLOR )
         launchGameButton.pack(side="bottom", pady=20)
         self.center_window(self.playConfig, 1200, 300)
 
@@ -122,6 +132,10 @@ class Interface():
         modeText = "PvP" if self.mode == 0 else "PvAI"
         self.modeLabel.config(text="Mode selected : " + modeText)
         print("mode = " + str(self.mode))
+
+    def changeDifficulty(self, i):
+        self.difficulty = i
+        print("difficulty level " + str(self.difficulty))
 
     def openHowTo(self):
         howToPopup = Tk()
@@ -151,11 +165,11 @@ class Interface():
         board = Frame(self.gameWindow)
         board.config(background=BGCOLOR)
 
-        state = initial_state
+        #state = initial_state
         self.selectedPawnX = None
         self.selectedPawnY = None
 
-        playerValue = 1 if state.t == 1 else 2
+        playerValue = 1 if state.playerPlaying == 1 else 2
 
         self.txt = Label(self.gameWindow, text="Player " + str(playerValue) + "'s turn:", font= ("Courrier", 40), bg=BGCOLOR, fg="White")
         self.txt.pack(pady = (100,20))
@@ -174,10 +188,10 @@ class Interface():
         ##grid = generateBoard(initial_state)
         #drawGrid(canvas, grid)
         ##drawBoard(canvas, grid)
-        self.drawBoard(self.canvas, initial_state)
+        self.drawBoard(self.canvas, state)
 
 
-        btn = Button(self.gameWindow, text="Quit game", bg=BGCOLOR, command = lambda: [self.gameWindow.withdraw(), self.window.deiconify(), initial_state.initialize()]) # TODO: Reinitialize board
+        btn = Button(self.gameWindow, text="Quit game", bg=BGCOLOR, command = lambda: [self.gameWindow.withdraw(), self.window.deiconify(), state.initialize()]) # TODO: Reinitialize board
         btn.pack(side="bottom", pady= 20)
         self.gameWindow.config(background=BGCOLOR)
         self.center_window(self.gameWindow,800,800)
@@ -192,7 +206,7 @@ class Interface():
         print("y = " + str(y))
         #self.coord.config(text = "("+str(x)+","+str(y)+")")
 
-        global initial_state
+        global state
 
         try:
             print("selected X = " + str(self.selectedPawnX))
@@ -200,46 +214,43 @@ class Interface():
         except:
             print("none")
 
-        if (initial_state.board[x][y] != 0 and initial_state.a == 0 and initial_state.b == 0): #TODO: Do it with state.b too
+        if (state.board[x][y] != 0 and state.remainingPawns == 0):
             self.selectedPawnX = x
             self.selectedPawnY = y
 
 
         if(self.gameFinished == False):
 
-            if (initial_state.a != 0 or initial_state.b !=0 ): #Placing phase
+            if (state.remainingPawns != 0): #Placing phase
 
-                    if (game.place(initial_state, x, y, True) == True):
+                    if (state.place(x, y, True) == True):
 
 
                         if (self.mode == 0):
+
                             print("PvP")
 
-                            if (initial_state.t == 1):
-                                initial_state.a -= 1
-                            else:
-                                initial_state.b -= 1
-
-
-
+                            #state.remainingPawns -= 1
 
                         elif (self.mode == 1):
+
                             print("PvAI")
 
-                            #initial_state.a -= 1
-
                             self.txt.config(text="AI")
-                            initial_state.t *= -1
 
-                            initial_state = minMaxAlgorithm.IAbestMove(initial_state, depth)
-                            initial_state.b -= 1
-
-
+                            if (self.difficulty == 1):
+                                ai.playEasy()
+                            elif (self.difficulty == 2):
+                                state = ai.playMediumOrHard(depth,0)
+                            elif (self.difficulty == 3):
+                                state = ai.playMediumOrHard(depth,1)
+                            else:
+                                print("Error\n")
 
             else: #Moving Phase
                 try:
                     if (self.selectedPawnX != None and self.selectedPawnY != None):
-                        if(game.move(initial_state, self.selectedPawnX, self.selectedPawnY, x, y, True) == False):
+                        if(state.move(self.selectedPawnX, self.selectedPawnY, x, y, True) == False):
                             print("Move failed")
                         else:
                             print("Move successful!")
@@ -248,30 +259,31 @@ class Interface():
 
                             if (self.mode == 1):
                                 self.txt.config(text="AI")
-                                initial_state = minMaxAlgorithm.IAbestMove(initial_state, depth)
 
+                                if (self.difficulty == 1):
+                                    ai.playEasy()
+                                elif (self.difficulty == 2):
+                                    state = ai.playMediumOrHard(depth,0)
+                                elif (self.difficulty == 3):
+                                    state = ai.playMediumOrHard(depth,1)
+                                else:
+                                    print("Error\n")
 
                 except:
                     print("Fail")
 
 
 
-        self.drawBoard(self.canvas, initial_state) #Refreshes the board
-        playerValue = 1 if initial_state.t == 1 else 2
+        self.drawBoard(self.canvas, state) #Refreshes the board
+        playerValue = 1 if state.playerPlaying == 1 else 2
         self.txt.config(text="Player " + str(playerValue) + "'s turn:")
 
-        if (initial_state.a == 0 or initial_state.b == 0):
-            if (game.isWinning(initial_state,1)):
-                print("Player 1 won this game!")
+        if (state.winner() != 0):
+            if (state.winner() == 1):
                 self.txt.config(text="Congrats, you've won!")
-                self.gameFinished = True
-            elif (game.isWinning(initial_state, -1)):
-                print("Player 2 won this game!")
+            else:
                 self.txt.config(text="Booo, you lost :(")
-                self.gameFinished = True
-        print(initial_state.a)
-        print(initial_state.b)
-
+            self.gameFinished = True
 
 
     def drawCell(self, canvas, x, y, s):
