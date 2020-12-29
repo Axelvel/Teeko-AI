@@ -5,7 +5,7 @@
 import numpy as np
 
 class boardGame:
-    def __init__(self, board,player,n):
+    def __init__(self, board, player, n):
         self.board = np.array(board)
         self.playerPlaying = player #the player that has to play next
 
@@ -14,7 +14,12 @@ class boardGame:
     def print(self):
         print("\n")
         print(self.board)
-        print("Player "+str(-self.playerPlaying)+" juste played. Turn for "+str(self.playerPlaying)+".\n")
+        print("\nPlayer "+str(-self.playerPlaying)+" juste played. Turn for "+str(self.playerPlaying)+".\n")
+
+    def initialize(self):
+        self.board = np.zeros((5,5), dtype=np.int16) #Initial board configuration
+        self.playerPlaying = 1
+        self.remainingPawns = 8
 
     def switchPlayer(self):
         self.playerPlaying *= -1
