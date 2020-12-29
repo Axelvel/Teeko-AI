@@ -16,7 +16,7 @@ Simple AI built in Python for the Teeko game.
 git clone https://github.com/Axelvel/Teeko-AI.git
 ```
 
-2. Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the necessary requirements.
+2. Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the necessary requirements
 
 ```bash
 pip install -r requirements.txt
@@ -34,7 +34,7 @@ or
 
 >Launch the game in the command line interface
 ```bash
-python3 teeko.py -cli
+python3 teeko.py --cli
 ```
 
 ## Authors
