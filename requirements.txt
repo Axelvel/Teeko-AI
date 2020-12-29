@@ -1,0 +1,5 @@
+#list of dependencies
+
+#Use the command "pip install -r requirements.txt" to install them
+
+numpy==1.8.0rc1
