@@ -3,7 +3,7 @@
 #EVERYTHING CONCERNING THE AI
 
 import numpy as np
-import gameBoard
+import game
 import random
 import copy
 maxSize = float("inf") ##VALUE OF INFINITY
@@ -29,7 +29,7 @@ class TeekoAI:
                 if self.board.move(int(x),int(y),int(a),int(b),False):
                     break
 
-    def playHard(self,depth):##MINIMAX
+    def playMediumOrHard(self,depth,mode):##MINIMAX
 
         player = self.board.playerPlaying
         bestScore = maxSize * -player ##start from the worse score
@@ -46,12 +46,12 @@ class TeekoAI:
                 for y in range(5):
                     if tempState.place(x,y,False):
                         if player == -1:
-                            tempScore = self.minimax(tempState,depth-1,alpha,beta,False)
+                            tempScore = self.minimax(mode,tempState,depth-1,alpha,beta,False)
                             if tempScore <= bestScore:
                                 bestScore = tempScore
                                 bestState = tempState
                         elif player == 1:
-                            tempScore = self.minimax(tempState,depth-1,alpha,beta,True)
+                            tempScore = self.minimax(mode,tempState,depth-1,alpha,beta,True)
                             if tempScore >= bestScore:
                                 bestScore = tempScore
                                 bestState = tempState
@@ -66,12 +66,12 @@ class TeekoAI:
                     for adjacent in adjacents:
                         if tempState.move(x,y,adjacent[0],adjacent[1],False):
                             if player == -1:
-                                tempScore = self.minimax(tempState,depth-1,alpha,beta,False)
+                                tempScore = self.minimax(mode,tempState,depth-1,alpha,beta,False)
                                 if tempScore <= bestScore:
                                     bestScore = tempScore
                                     bestState = tempState
                             elif player == 1:
-                                tempScore = self.minimax(tempState,depth-1,alpha,beta,True)
+                                tempScore = self.minimax(mode,tempState,depth-1,alpha,beta,True)
                                 if tempScore >= bestScore:
                                     bestScore = tempScore
                                     bestState = tempState
@@ -82,10 +82,10 @@ class TeekoAI:
         self.board = bestState #apply the change to both
         return bestState
 
-    def minimax(self,childState,depth,alpha,beta,isMaximizing):
+    def minimax(self,mode,childState,depth,alpha,beta,isMaximizing):
         ##SI ON RENCONTRE UN ETAT GAGNANT OU SI DEPTH EST EPUISE, ON DONNE UNE VALEUR A LA BOARD
         if childState.winner() != 0 or depth ==0:
-            return self.eval(childState,depth)
+            return self.eval(childState,depth,mode)
 
         #Si on veut maximiser, alors on commencer à -inf, pour se rapprocher de inf
         #Pour se faire on crée de nouveau des fils, et pour chaque fils on relancer minimax mais avec min d'active
@@ -103,7 +103,7 @@ class TeekoAI:
                     for y in range(5):
                         if tempState.place(x,y,False):
                             #on lance min
-                            tempScore = self.minimax(tempState,depth-1,alpha,beta,False)
+                            tempScore = self.minimax(mode,tempState,depth-1,alpha,beta,False)
                             alpha = tempScore
 
                             if tempScore >= bestScore:
@@ -121,7 +121,7 @@ class TeekoAI:
                             if tempState.move(x,y,adjacent[0],adjacent[1],False):
 
                                 #on lance min
-                                tempScore = self.minimax(tempState,depth-1,alpha,beta,False)
+                                tempScore = self.minimax(mode,tempState,depth-1,alpha,beta,False)
                                 alpha = tempScore
 
                                 if tempScore >= bestScore:
@@ -145,7 +145,7 @@ class TeekoAI:
                     for y in range(5):
                         if tempState.place(x,y,False):
                             #on lance min
-                            tempScore = self.minimax(tempState,depth-1,alpha,beta,True)
+                            tempScore = self.minimax(mode,tempState,depth-1,alpha,beta,True)
                             beta = tempScore
 
                             if tempScore <= bestScore:
@@ -163,7 +163,7 @@ class TeekoAI:
                             if tempState.move(x,y,adjacent[0],adjacent[1],False):
 
                                 #on lance min
-                                tempScore = self.minimax(tempState,depth-1,alpha,beta,True)
+                                tempScore = self.minimax(mode,tempState,depth-1,alpha,beta,True)
                                 beta = tempScore
                                 if tempScore <= bestScore:
                                     bestScore = tempScore
@@ -172,30 +172,36 @@ class TeekoAI:
                                 tempState = tempState = copy.deepcopy(childState) #remise a 0
             return bestScore
 
-    def eval(self,state,depth):
+    def eval(self,state,depth,mode):
         if state.winner()!=0:
             return maxSize * state.winner()
         else:
             value = 0
-            weights = [
-                        [0, 0, 0, 0, 0],
-                        [0, 1, 1, 1, 0],
-                        [0, 1, 2, 1, 0],
-                        [0, 1, 1, 1, 0],
-                        [0, 0, 0, 0, 0]
-                        ]
-            for x in range(5):
-                for y in range(5):
-                    if state.board[x][y] != 0:
-                        pawnsWeight = self.stateWeightForPawn(state,x,y)
-                        for a in range(5):
-                            for b in range(5):
-                                if state.board[a][b] != 0:
-                                    value = value + state.board[a][b] * pawnsWeight[a][b]
+            if mode == 0: ##MEDIUM LEVEL
+                boardWeights = [
+                            [0, 1, 0, 1, 0],
+                            [1, 2, 2, 2, 1],
+                            [0, 2, 3, 2, 0],
+                            [1, 2, 2, 2, 1],
+                            [0, 1, 0, 1, 0]
+                            ]
+                for x in range(5):
+                    for y in range(5):
+                        if state.board[x][y] != 0:
+                            value = value + state.board[x][y] * boardWeights[x][y]
 
-                    #if state.board[x][y] != 0:
-                    #    value = value + weights[x][y]*state.board[x][y]
-            return value
+                return value
+            elif mode == 1: ##HARD LEVEL
+                for x in range(5):
+                    for y in range(5):
+                        if state.board[x][y] != 0:
+                            pawnsWeight = self.stateWeightForPawn(state,x,y)
+                            for a in range(5):
+                                for b in range(5):
+                                    if state.board[a][b] != 0:
+                                        value = value + state.board[a][b] * pawnsWeight[a][b]
+
+                return value
 
     def stateWeightForPawn(self,state,x,y):
         stateWeight = [
@@ -209,6 +215,8 @@ class TeekoAI:
         nearPawns = state.getAdjacent(x,y)
         for nearPawn in nearPawns:
             stateWeight[nearPawn[0]][nearPawn[1]] = 2
+
+
 
         remotePawnsCoordinates = [[x-1,y-2],[x+1,y-2],[x-1,y+2],[x+1,y+2],[x-2,y-1],[x-2,y+1],[x+2,y-1],[x+2,y+1]]
         for remotePawn in remotePawnsCoordinates:
