@@ -2,7 +2,10 @@
 
 Simple AI built in Python for the Teeko game.
 
+![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/Axelvel/Teeko-AI?include_prereleases&style=for-the-badge)
 ![GitHub all releases](https://img.shields.io/github/downloads/Axelvel/Teeko-AI/total?style=for-the-badge)
+![GitHub repo size](https://img.shields.io/github/repo-size/Axelvel/Teeko-AI?label=Size&style=for-the-badge)
+
 
 ## Installation
 
