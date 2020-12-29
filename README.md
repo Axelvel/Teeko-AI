@@ -36,4 +36,4 @@ python3 teeko.py -cli
 
 ## Authors
 
-Made with :heart: by Sophie Teimournia & Axel Velez
+Made with :heart: by [Sophie Teimournia](https://github.com/SophieShirine "Sophie's GitHub page") & [Axel Velez](https://github.com/Axelvel "Axel's GitHub page")
