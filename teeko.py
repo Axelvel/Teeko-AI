@@ -1,23 +1,22 @@
 # -*- coding: utf-8 -*-
 
 import game
-from ai import *
-import numpy
+import ai
 
+state = game.boardGame([
+            [0, 1, -1, 0, 0],
+            [0, 0, 0, 0, -1],
+            [0, 1, -1, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 0, 1, 0, -1]
+        ],1,0)
 
-initial_state = State([
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0]
-        ], 4, 4, 1)
+ai = ai.TeekoAI(state,-1)
 
-print("\nWelcome to our Teeko game!\n")
+state.print()
+while(state.winner()==0):
 
-print("Select game mode:\n")
-print("     - P vs P\n")
-print("     - P vs AI\n")
-print("     - AI vs AI\n")
-
-game.play(initial_state)
+    state.playPlayer()
+    state.print()
+    state = ai.playMediumOrHard(3,int(1)) #play hard here. 0 for intermediate.
+    state.print()
