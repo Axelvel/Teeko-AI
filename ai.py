@@ -8,11 +8,20 @@ import random
 import copy
 maxSize = float("inf") ##VALUE OF INFINITY
 
+
+"""
+@desc class of the Teeko AI
+@param State $board - actual state of the board game
+@param int $IAplayer - value indating whose player's turn it is
+"""
 class TeekoAI:
     def __init__(self, board,IAplayer):
         self.board = board
-        self.IAplayer = IAplayer #Id of the IA, useful when there are two different ai (in human vs ia, always at -1)
+        self.IAplayer = IAplayer
 
+    """
+    @desc function that plays the game in easy mode, making random decisions for the AI.
+    """
     def playEasy(self):
         if self.board.remainingPawns != 0:
             while 1:
@@ -20,7 +29,7 @@ class TeekoAI:
                 y =  random.randint(0,4)
                 if self.board.place(int(x),int(y),False):
                     break
-        else: #if game in moving phase
+        else:
             while 1:
                 x =  random.randint(0,4)
                 y =  random.randint(0,4)
@@ -29,19 +38,25 @@ class TeekoAI:
                 if self.board.move(int(x),int(y),int(a),int(b),False):
                     break
 
-    def playMediumOrHard(self,depth,mode):##MINIMAX
+    """
+    @desc function that plays the game in medium or hard mode, depending on the value of 'mode' given
+    @param int $depth - depth of the current state in the minimax algorithm
+    @param int $mode - mode of the game (0 for intermediate, 1 for hard)
+    @return State $bestState - best next move for the IA to take
+    """
+    def playMediumOrHard(self,depth,mode):
 
         player = self.board.playerPlaying
-        bestScore = maxSize * -player ##start from the worse score
+        bestScore = maxSize * -player
         tempScore = 0
         alpha = -maxSize
         beta = maxSize
 
-        #board temporaire pour les test
+        #Temporary board for testing each child
         tempState = copy.deepcopy(self.board)
         bestState = None
 
-        if self.board.remainingPawns != 0: #if game in placing phase
+        if self.board.remainingPawns != 0:
             for x in range(5):
                 for y in range(5):
                     if tempState.place(x,y,False):
@@ -55,14 +70,12 @@ class TeekoAI:
                             if tempScore >= bestScore:
                                 bestScore = tempScore
                                 bestState = tempState
-                        tempState = copy.deepcopy(self.board) #remise a 0
-                        #print(tempScore)
-
-        else: #if game in moving phase
+                        tempState = copy.deepcopy(self.board)
+        else:
             for x in range(5):
                 for y in range(5):
-                    ###POUR CHAQUE PION, ON RECUP LES ADJACENTS ET ON BOUGE LA
                     adjacents = tempState.getAdjacent(x,y)
+
                     for adjacent in adjacents:
                         if tempState.move(x,y,adjacent[0],adjacent[1],False):
                             if player == -1:
@@ -75,22 +88,24 @@ class TeekoAI:
                                 if tempScore >= bestScore:
                                     bestScore = tempScore
                                     bestState = tempState
-                            tempState = copy.deepcopy(self.board) #remise a 0
-                            #print(tempScore)
+                            tempState = copy.deepcopy(self.board)
 
-        print("The best score found was "+str(bestScore))
-        self.board = bestState #apply the change to both
+        self.board = bestState
         return bestState
 
+    """
+    @desc minimax function
+    @param int $mode - mode of the game (0 for intermediate, 1 for hard)
+    @param State $childState - state of the board for each child
+    @param int $depth - depth of the current state in the minimax algorithm
+    @param int $alpha,beta - value used for the alpha beta pruning
+    @param bool $isMaximizing - allows the minimax to know when to maximize or minimize
+    @return int $bestScore - the best score pulled up from the algorithm
+    """
     def minimax(self,mode,childState,depth,alpha,beta,isMaximizing):
-        ##SI ON RENCONTRE UN ETAT GAGNANT OU SI DEPTH EST EPUISE, ON DONNE UNE VALEUR A LA BOARD
+
         if childState.winner() != 0 or depth ==0:
             return self.eval(childState,depth,mode)
-
-        #Si on veut maximiser, alors on commencer à -inf, pour se rapprocher de inf
-        #Pour se faire on crée de nouveau des fils, et pour chaque fils on relancer minimax mais avec min d'active
-        #De cette manière onfinit par arriver sur un etat gagnant qui renvoie le score et le fait remonter
-        #On choisit ensuite le meilleur parmi tout ceux qui sont remontes, et c'est celui qu'on renvoie
 
         if isMaximizing:
             bestScore = -maxSize
@@ -98,11 +113,10 @@ class TeekoAI:
 
             tempState = copy.deepcopy(childState)
 
-            if tempState.remainingPawns != 0: #if game in placing phase
+            if tempState.remainingPawns != 0:
                 for x in range(5):
                     for y in range(5):
                         if tempState.place(x,y,False):
-                            #on lance min
                             tempScore = self.minimax(mode,tempState,depth-1,alpha,beta,False)
                             alpha = tempScore
 
@@ -110,17 +124,16 @@ class TeekoAI:
                                 bestScore = tempScore
                             if alpha >= beta:
                                 return alpha
-                            tempState = tempState = copy.deepcopy(childState) #remise a 0
+                            tempState = tempState = copy.deepcopy(childState)
 
-            else: #if game in moving phase
+            else:
                 for x in range(5):
                     for y in range(5):
-                        ###POUR CHAQUE PION, ON RECUP LES ADJACENTS ET ON BOUGE LA
                         adjacents = tempState.getAdjacent(x,y)
+
                         for adjacent in adjacents:
                             if tempState.move(x,y,adjacent[0],adjacent[1],False):
 
-                                #on lance min
                                 tempScore = self.minimax(mode,tempState,depth-1,alpha,beta,False)
                                 alpha = tempScore
 
@@ -128,23 +141,18 @@ class TeekoAI:
                                     bestScore = tempScore
                                 if alpha >= beta:
                                     return alpha
-                                tempState = tempState = copy.deepcopy(childState) #remise a 0
+                                tempState = tempState = copy.deepcopy(childState)
             return bestScore
-        else: #isMinimizing
-            #Si on veut minimiser, alors on commencer à inf, pour se rapprocher de -inf
-            #Pour se faire on crée de nouveau des fils, et pour chaque fils on relancer minimax mais avec max d'active
-            #De cette manière onfinit par arriver sur un etat gagnant qui renvoie le score et le fait remonter
-            #On choisit ensuite le meilleur parmi tout ceux qui sont remontes, et c'est celui qu'on renvoie
+        else:
             bestScore = maxSize
             tempScore = 0
 
             tempState = tempState = copy.deepcopy(childState)
 
-            if tempState.remainingPawns != 0: #if game in placing phase
+            if tempState.remainingPawns != 0:
                 for x in range(5):
                     for y in range(5):
                         if tempState.place(x,y,False):
-                            #on lance min
                             tempScore = self.minimax(mode,tempState,depth-1,alpha,beta,True)
                             beta = tempScore
 
@@ -152,32 +160,48 @@ class TeekoAI:
                                 bestScore = tempScore
                             if alpha >= beta:
                                 return beta
-                            tempState = tempState = copy.deepcopy(childState) #remise a 0
+                            tempState = tempState = copy.deepcopy(childState)
 
-            else: #if game in moving phase
+            else:
                 for x in range(5):
                     for y in range(5):
-                        ###POUR CHAQUE PION, ON RECUP LES ADJACENTS ET ON BOUGE LA
+
                         adjacents = tempState.getAdjacent(x,y)
                         for adjacent in adjacents:
                             if tempState.move(x,y,adjacent[0],adjacent[1],False):
 
-                                #on lance min
                                 tempScore = self.minimax(mode,tempState,depth-1,alpha,beta,True)
                                 beta = tempScore
                                 if tempScore <= bestScore:
                                     bestScore = tempScore
                                 if alpha >= beta:
                                     return beta
-                                tempState = tempState = copy.deepcopy(childState) #remise a 0
+                                tempState = tempState = copy.deepcopy(childState) 
             return bestScore
 
+    """
+    @desc function eval, giving value to the boards when a winning combination is found or when depth has reached 0
+    @param State $childState - state of the board
+    @param int $depth - depth of the current state in the minimax algorithm
+    @param int $mode - mode of the game (0 for intermediate, 1 for hard)
+    @return int $value - the score of the board
+    """
     def eval(self,state,depth,mode):
         if state.winner()!=0:
             return maxSize * state.winner()
         else:
             value = 0
             if mode == 0: ##MEDIUM LEVEL
+                for x in range(5):
+                    for y in range(5):
+                        if state.board[x][y] != 0:
+                            pawnsWeight = self.stateWeightForPawn(state,x,y)
+                            for a in range(5):
+                                for b in range(5):
+                                    if state.board[a][b] != 0:
+                                        value = value + state.board[a][b] * pawnsWeight[a][b]
+                return value
+            elif mode == 1: ##HARD LEVEL
                 boardWeights = [
                             [0, 1, 0, 1, 0],
                             [1, 2, 2, 2, 1],
@@ -191,18 +215,13 @@ class TeekoAI:
                             value = value + state.board[x][y] * boardWeights[x][y]
 
                 return value
-            elif mode == 1: ##HARD LEVEL
-                for x in range(5):
-                    for y in range(5):
-                        if state.board[x][y] != 0:
-                            pawnsWeight = self.stateWeightForPawn(state,x,y)
-                            for a in range(5):
-                                for b in range(5):
-                                    if state.board[a][b] != 0:
-                                        value = value + state.board[a][b] * pawnsWeight[a][b]
 
-                return value
-
+    """
+    @desc function creating the weights of the pawn surrounding a chosen pawn
+    @param State $childState - state of the board
+    @param int $x,y - coordinates of the chosen pawn
+    @return array $stateWeight - weights of the emplacements near the pawn
+    """
     def stateWeightForPawn(self,state,x,y):
         stateWeight = [
                     [0, 0, 0, 0, 0],
@@ -215,8 +234,6 @@ class TeekoAI:
         nearPawns = state.getAdjacent(x,y)
         for nearPawn in nearPawns:
             stateWeight[nearPawn[0]][nearPawn[1]] = 2
-
-
 
         remotePawnsCoordinates = [[x-1,y-2],[x+1,y-2],[x-1,y+2],[x+1,y+2],[x-2,y-1],[x-2,y+1],[x+2,y-1],[x+2,y+1]]
         for remotePawn in remotePawnsCoordinates:

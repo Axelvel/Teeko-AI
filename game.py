@@ -4,38 +4,65 @@
 
 import numpy as np
 
+
+"""
+@desc class of te game's board
+@param numpyArray $board - matric representing the board
+@param int $playerPlaying - value indating whose player's turn it is (1 or -1)
+@param int $remainingPawns - pawns left to place on the board (initizalized at 8, 4 for each player)
+"""
 class boardGame:
     def __init__(self, board, player, n):
         self.board = np.array(board)
-        self.playerPlaying = player #the player that has to play next
+        self.playerPlaying = player
+        self.remainingPawns = n
 
-        self.remainingPawns = n #pawns to place on the board left
-
+    """
+    @desc print the game's board.
+    """
     def print(self):
         print("\n")
         print(self.board)
         print("\nPlayer "+str(-self.playerPlaying)+" juste played. Turn for "+str(self.playerPlaying)+".\n")
 
+    """
+    @desc initizalize the game's board with all zeros.
+    """
     def initialize(self):
-        self.board = np.zeros((5,5), dtype=np.int16) #Initial board configuration
+        self.board = np.zeros((5,5), dtype=np.int16)
         self.playerPlaying = 1
         self.remainingPawns = 8
 
+    """
+    @desc switches the player value from 1 to -1 or from -1 to 1
+    """
     def switchPlayer(self):
         self.playerPlaying *= -1
 
+    """
+    @desc places a pawn on the board
+    @param int $x,y - coordinates of the position on which we want to place the pawn
+    @param bool $cflag - allowing console messages or not
+    @return bool - False if the operation failed, True if it worked
+    """
     def place(self,x,y,cflag):
         if (self.board[x][y] != 0): #Position is occupied by another pawn
             if (cflag):
                 print("This position is occupied. \n")
             return False
-        else: #Position is not occupied
-            self.board[x][y] = self.playerPlaying #We assign the value of the pawn to this position
+        else:
+            self.board[x][y] = self.playerPlaying
             self.remainingPawns -= 1
             self.switchPlayer()
             return True
 
-
+    """
+    @desc places a pawn on the board
+    @param int $x,y - coordinates of the pawn we want to move
+    @param int $a,b - coordinates of the position on which we want to place the pawn
+    @param bool $cflag - allowing console messages or not
+    @return bool - False if the operation failed, True if it worked
+    """
     def move(self,x,y,a,b,cflag):
         if (a != x or b != y): #Position and destionation must be different
             if (self.board[a][b] != 0): #Destination position is occupied by another pawn
@@ -47,12 +74,12 @@ class boardGame:
                     if (cflag):
                         print("There is no pawn to move at this position. \n")
                     return False
-                else: #initial position is occupied
+                else:
                     if (self.board[x][y] == self.playerPlaying):
                         adjacentSlots = self.getAdjacent(x, y)
                         if [a,b] in adjacentSlots:
-                            self.board[a][b] = self.board[x][y] #Moving pawn value
-                            self.board[x][y] = 0 #Resetting initial position value to 0 (empty)
+                            self.board[a][b] = self.board[x][y]
+                            self.board[x][y] = 0
                             self.switchPlayer()
                             return True
                         else:
@@ -69,6 +96,11 @@ class boardGame:
             return False
 
 
+    """
+    @desc look for all the positions adjacents to one pawn
+    @param int $x,y - coordinates of the pawn
+    @return array $adjacentsSlots - array of the position's coordinates
+    """
     def getAdjacent(self, a, b):
         adjacentSlots = []
         directions = [
@@ -85,51 +117,52 @@ class boardGame:
                 adjacentSlots.append([x,y])
         return adjacentSlots
 
-
+    """
+    @desc search for a winning combination
+    @return int - value of the player (1 or -1) or 0 when there's none
+    """
     def winner(self):
         x = 0
         y = 0
         posX = 0
         posY = 0
 
-        #LIGNES
+        #LINES
         for i in range(5):
-            #check if at least 4 value are the same
-            if np.sum(self.board[i] == 1) == 4: #player 1 may win, so we check
-                if np.all(self.board[i][0:4] == 1) or np.all(self.board[i][1:5] == 1): ##si toutes les valeurs de la première partie de la ligne sont égales à 1
+            if np.sum(self.board[i] == 1) == 4:
+                if np.all(self.board[i][0:4] == 1) or np.all(self.board[i][1:5] == 1):
                     return 1
-            elif np.sum(self.board[i] == -1) == 4:#player -1 may win, so we check
-                if np.all(self.board[i][0:4] == -1) or np.all(self.board[i][1:5] == -1): ##si toutes les valeurs de la première partie de la ligne sont égales à 1
+            elif np.sum(self.board[i] == -1) == 4:#
+                if np.all(self.board[i][0:4] == -1) or np.all(self.board[i][1:5] == -1):
                     return -1
 
-        #COLONNES
+        #COLUMNS
         for i in range(5):
-            #check if at least 4 value are the same
             column = self.board[:,i]
-            if np.sum(column == 1) == 4: #player 1 may win, so we check
-                if np.all(column[0:4] == 1) or np.all(column[1:5] == 1): ##si toutes les valeurs de la première partie de la ligne sont égales à 1
+            if np.sum(column == 1) == 4:
+                if np.all(column[0:4] == 1) or np.all(column[1:5] == 1):
                     return 1
-            elif np.sum(column == -1) == 4:#player -1 may win, so we check
-                if np.all(column[0:4] == -1) or np.all(column[1:5] == -1): ##si toutes les valeurs de la première partie de la ligne sont égales à 1
+            elif np.sum(column == -1) == 4:
+                if np.all(column[0:4] == -1) or np.all(column[1:5] == -1):
                     return -1
 
 
-        #DIAGONALES
+        #DIAGONALS
         for i in range(-1,2):
             diag = self.board.diagonal(i)
             oppdiag = np.fliplr(self.board).diagonal(i)
 
             if np.sum(diag == 1) == 4 or np.sum(oppdiag == 1) == 4:
-                if np.all(diag[0:4] == 1) or np.all(oppdiag[0:4] == 1): ##si toutes les valeurs de la première partie de la diag sont égales à 1
+                if np.all(diag[0:4] == 1) or np.all(oppdiag[0:4] == 1):
                     return 1
                 if len(diag)>4:
-                    if np.all(diag[1:5] == 1) or np.all(oppdiag[1:5] == 1): ##si toutes les valeurs de la deuxieme partie de la diag sont égales à 1
+                    if np.all(diag[1:5] == 1) or np.all(oppdiag[1:5] == 1):
                         return 1
             elif np.sum(diag == -1) == 4 or np.sum(oppdiag == -1) == 4:
-                if np.all(diag[0:4] == -1) or np.all(oppdiag[0:4] == -1): ##si toutes les valeurs de la première partie de la diag sont égales à 1
+                if np.all(diag[0:4] == -1) or np.all(oppdiag[0:4] == -1):
                     return -1
                 if len(diag)>4:
-                    if np.all(diag[1:5] == -1) or np.all(oppdiag[1:5] == -1): ##si toutes les valeurs de la deuxieme partie de la diag sont égales à 1
+                    if np.all(diag[1:5] == -1) or np.all(oppdiag[1:5] == -1):
                         return -1
 
         #CUBES
@@ -143,8 +176,11 @@ class boardGame:
                 elif np.all(cube == -1):
                     return -1
 
-        return 0 #no winner
+        return 0
 
+    """
+    @desc allows the player to play in the console
+    """
     def playPlayer(self):
         #If game in placing phase
         if self.remainingPawns != 0:
