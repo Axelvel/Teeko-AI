@@ -3,7 +3,7 @@
 from tkinter import *
 from ai import *
 import game
-from sys import platform
+import sys
 
 
 #Board dimensions
@@ -76,7 +76,8 @@ class Interface():
             self.icon = Image("photo", file="Assets/icon.png")
             self.window.call('wm','iconphoto', self.window._w, self.icon)
         elif (sys.platform == "linux"):
-            self.window.iconbitmap('Assets/gameIcon.xpm')
+            #self.window.iconbitmap('Assets/gameIcon.xpm')
+            pass
 
         self.window.mainloop()
 
