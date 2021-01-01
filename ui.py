@@ -35,6 +35,10 @@ state = game.boardGame([
 ai = ai.TeekoAI(state,-1)
 
 
+
+"""
+@desc class of the user interface 
+"""
 class Interface():
     def __init__(self):
 
@@ -82,6 +86,13 @@ class Interface():
         self.window.mainloop()
 
 
+            
+    """
+    @desc function that center a given window
+    @param window $wind - window to be displayed at the center of the screen
+    @param int $w - width of the given window
+    @param int $h - height of the given window
+    """ 
     def center_window(self, wind, w, h):
         # get screen width and height
         ws = wind.winfo_screenwidth()
@@ -91,7 +102,9 @@ class Interface():
         y = (hs/2) - (h/2)
         wind.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
-
+    """
+    @desc function that opens the game configuration window
+    """   
     def openPlayConfig(self):
         self.playConfig = Tk()
         self.playConfig.title("Game configuration")
@@ -127,6 +140,11 @@ class Interface():
         launchGameButton.pack(side="bottom", pady=20)
         self.center_window(self.playConfig, 1200, 300)
 
+
+    """
+    @desc function that changes the game mode (0 is PvP, 1 is PvAI)
+    @param int $i - value the of the desired mode
+    """ 
     def changeMode(self, i):
         #self.mode = 1 if (i == 1) else 0
         self.mode = 1 if i == 1 else 0
@@ -134,10 +152,18 @@ class Interface():
         self.modeLabel.config(text="Mode selected : " + modeText)
         print("mode = " + str(self.mode))
 
+
+    """
+    @desc function that changes the difficulty level
+    @param int $i - value the of the desired difficulty
+    """ 
     def changeDifficulty(self, i):
         self.difficulty = i
         print("difficulty level " + str(self.difficulty))
 
+    """
+    @desc function that opens the "How to play" window
+    """ 
     def openHowTo(self):
         howToPopup = Tk()
         howToPopup.title("How to play")
@@ -156,6 +182,9 @@ class Interface():
         popupButton.pack(side="bottom", pady=20)
         self.center_window(howToPopup, 1200, 300)
 
+    """
+    @desc function that opens the game window
+    """ 
     def openGameWindow(self):
         self.gameWindow = Tk()
         self.gameWindow.title("Playing game...")
@@ -199,7 +228,12 @@ class Interface():
 
         ###
 
-    def onClick(self, event): #TODO: Incorporate game logic in this function
+
+    """
+    @desc function that is triggered whenever a player click on the game board
+    @param event $event - event that triggered this function (click on canvas)
+    """ 
+    def onClick(self, event):
         #print("\nIt's been clicked!")
         y = int(event.x // cellWidth)
         x = int(event.y // cellHeight)
@@ -285,8 +319,15 @@ class Interface():
             else:
                 self.txt.config(text="Booo, you lost :(")
             self.gameFinished = True
+            
 
-
+    """
+    @desc function that draws an individual board cell
+    @param Tk.canvas $canvas - canvas object of the tkinter library
+    @param int $x - x position of the cell on the board
+    @param int $y - y position of the cell on the board
+    @param int $s - value the of pawn occupating this position
+    """       
     def drawCell(self, canvas, x, y, s):
         x1 = cellWidth * x
         y1 = cellHeight * y
@@ -302,7 +343,11 @@ class Interface():
         self.canvas.bind('<Button-1>', self.onClick)
 
 
-
+    """
+    @desc function that draws the entire game board
+    @param Tk.canvas $canvas - canvas object of the tkinter library
+    @param gameBoard $state - game state to be drawn
+    """   
     def drawBoard(self, canvas, state):
 
         for i in range(5):
