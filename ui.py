@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from tkinter import *
-from ai import *
+import ai
 import game
 import sys
 
