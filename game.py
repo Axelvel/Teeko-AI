@@ -23,7 +23,8 @@ class boardGame:
     def print(self):
         print("\n")
         print(self.board)
-        print("\nPlayer "+str(-self.playerPlaying)+" juste played. Turn for "+str(self.playerPlaying)+".\n")
+        if (self.remainingPawns != 8):
+            print("\nPlayer "+str(-self.playerPlaying)+" juste played. Turn for "+str(self.playerPlaying)+".\n")
 
     """
     @desc initizalize the game's board with all zeros.
@@ -182,21 +183,44 @@ class boardGame:
     @desc allows the player to play in the console
     """
     def playPlayer(self):
-        #If game in placing phase
-        if self.remainingPawns != 0:
-            while 1:
-                print("Enter the coordinates of the pawn you wish to place.")
-                x = input()
-                y = input()
-                if self.place(int(x),int(y),True):
+
+
+        if self.remainingPawns != 0: #If game in placing phase
+            while True:
+                try:
+                    x_pos = int(input("Choose x position: "))
+                    y_pos = int(input ("Choose y position: "))
+                except:
+                    print("Sorry, I didn't understand that.")
+                    continue
+
+                if not(0 <= x_pos <= 4 and 0 <= y_pos <= 4):
+                    print("Please select values from 0 to 4.")
+                    continue
+
+                if (self.place(x_pos, y_pos, True) == False):
+                    continue
+                else:
                     break
+
         else: #if game in moving phase
-            while 1:
-                print("Enter the coordinates of the pawn you wish to move.")
-                x = input()
-                y = input()
-                print("Enter the coordinates of the place you wish to place it.")
-                a = input()
-                b = input()
-                if self.move(int(x),int(y),int(a),int(b),True):
-                    break
+            while True:
+                    try:
+                        x_pos = int(input("Choose x position: "))
+                        y_pos = int(input ("Choose y position: "))
+
+                        a_pos = int(input("Choose destination x position: "))
+                        b_pos = int(input ("Choose destination y position: "))
+
+                    except:
+                        print("Sorry, I didn't understand that.")
+                        continue
+
+                    if not(0 <= x_pos <= 4 and 0 <= y_pos <= 4 and 0 <= a_pos <= 4 and 0 <= b_pos <= 4 ):
+                        print("Please select values from 0 to 4.")
+                        continue
+
+                    if (self.move(x_pos, y_pos, a_pos, b_pos, True) == False):
+                        continue
+                    else:
+                        break
