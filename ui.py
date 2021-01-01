@@ -171,7 +171,7 @@ class Interface():
         txt1.pack(expand=YES, pady=5)
         txt2 = Label(howToPopup, text="SECOND PHASE [Moving] - If no player achieved the winning goal, then each player moves one of its pawn into an adjacent orthogonal or diagonal empty cell.", font = ("Courrier", 15), bg=BGCOLOR, fg="White")
         txt2.pack(expand=YES, pady=5)
-        txt3 = Label(howToPopup, text="	GOAL - A player wins when he makes a 4 in-a-row, or creates a square (this square can be of any size, i.e., 2x2 to 5x5).", font = ("Courrier", 15), bg=BGCOLOR, fg="White")
+        txt3 = Label(howToPopup, text="	GOAL - A player wins when he makes a 4 in-a-row, a diagonal, or creates a square.", font = ("Courrier", 15), bg=BGCOLOR, fg="White")
         txt3.pack(expand=YES, pady=5)
 
         #Back button
